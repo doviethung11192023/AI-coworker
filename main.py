@@ -1,4 +1,4 @@
-# main.py
+
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,7 +17,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS cho frontend (nếu có)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Trong production nên giới hạn

@@ -1,4 +1,4 @@
-# app/core/state.py
+
 from typing import TypedDict, Annotated, List, Dict, Optional
 from langgraph.graph.message import add_messages
 

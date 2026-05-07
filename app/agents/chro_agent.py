@@ -1,4 +1,4 @@
-# app/agents/chro_agent.py
+
 from app.agents.base_agent import BaseNPCAgent
 from app.core.prompts import CHRO_PERSONA
 
