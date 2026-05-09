@@ -1,0 +1,79 @@
+{
+  "simulation_id": "gucci-leadership-08",
+  "stages": [
+    {
+      "name": "discovery",
+      "description": "Clarify the problem and stakeholder needs",
+      "required_deliverables": ["problem_statement"],
+      "preferred_agents": ["chro", "ceo"],
+      "focus": "problem_framing",
+      "next_stage_hint": "Move to Group DNA and the competency framework."
+    },
+    {
+      "name": "alignment",
+      "description": "Define Group DNA and competency matrix",
+      "required_deliverables": ["group_dna", "competency_matrix"],
+      "preferred_agents": ["ceo", "chro"],
+      "focus": "group_dna_and_competency",
+      "next_stage_hint": "Shift into 360 and coaching program design."
+    },
+    {
+      "name": "design",
+      "description": "Design 360 program and coaching journey",
+      "required_deliverables": ["program_spec", "questionnaire"],
+      "preferred_agents": ["chro"],
+      "focus": "360_design",
+      "next_stage_hint": "Move into rollout planning and change management."
+    },
+    {
+      "name": "execution_planning",
+      "description": "Plan rollout, training, RACI, and risk",
+      "required_deliverables": ["rollout_playbook", "kpi_table"],
+      "preferred_agents": ["regional"],
+      "focus": "rollout_and_risk",
+      "next_stage_hint": "Prepare final review and measurement wrap-up."
+    },
+    {
+      "name": "wrap_up",
+      "description": "Finalize measurement and closure",
+      "required_deliverables": ["final_presentation"],
+      "preferred_agents": ["ceo"],
+      "focus": "measurement_and_closure",
+      "next_stage_hint": "Ask for final confirmation and portfolio export."
+    }
+  ],
+  "deliverables": [
+    {
+      "id": "problem_statement",
+      "keywords": ["problem", "challenge", "pain point", "gap", "issue", "can't move", "cannot move", "retraining", "multiple model", "different model", "inconsistent", "mobility", "friction", "barrier", "obstacle"]
+    },
+    {
+      "id": "group_dna",
+      "keywords": ["group dna", "brand dna", "group mission", "group culture"]
+    },
+    {
+      "id": "competency_matrix",
+      "keywords": ["competency matrix", "competency framework", "4x3", "vision entrepreneurship passion trust"]
+    },
+    {
+      "id": "program_spec",
+      "keywords": ["360 program", "360 feedback", "program spec", "coaching journey"]
+    },
+    {
+      "id": "questionnaire",
+      "keywords": ["questionnaire", "survey", "assessment form"]
+    },
+    {
+      "id": "rollout_playbook",
+      "keywords": ["rollout plan", "train-the-trainer", "raci", "risk management", "rollout playbook"]
+    },
+    {
+      "id": "kpi_table",
+      "keywords": ["kpi", "dashboard", "measurement framework", "kpi table"]
+    },
+    {
+      "id": "final_presentation",
+      "keywords": ["final presentation", "portfolio", "executive summary", "wrap up", "final review"]
+    }
+  ]
+}

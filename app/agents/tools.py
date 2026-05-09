@@ -2,10 +2,28 @@ from langchain.tools import tool
 from typing import Optional
 from app.memory.vector_store import query_documents
 
+
+def _normalize_query(query) -> str:
+    if isinstance(query, dict):
+        value = query.get("value") or query.get("query") or query.get("text")
+        if isinstance(value, str):
+            return value
+        if value is not None:
+            return str(value)
+    if isinstance(query, str):
+        return query
+    if query is None:
+        return ""
+    return str(query)
+
 @tool
 def retrieve_simulation_docs(query: str, module: Optional[int] = None) -> str:
     """Retrieve relevant Gucci simulation documents and context."""
-    results = query_documents(query, module=module, n_results=3)
+    query_text = _normalize_query(query).strip()
+    if not query_text:
+        return "Missing query. Ask the user to clarify what to retrieve."
+
+    results = query_documents(query_text, module=module, n_results=3)
     if not results:
         return "No indexed documents found yet. Ask the user to verify sources or add docs."
 
