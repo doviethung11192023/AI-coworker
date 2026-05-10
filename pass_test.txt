@@ -1,0 +1,91 @@
+How should we rollout this leadership system to all regions?
+
+
+The business problem we're solving is: Gucci Group leaders lack a shared mental model of our brand identity. We need to ensure all executives worldwide operate from the same 4 core values to maintain brand coherence.
+
+
+What's the training plan we'll use? I want to make sure managers are ready for the rollout
+
+
+
+
+
+
+Group DNA (brand DNA):
+Gucci Group mission is to preserve luxury brand identity while scaling leadership consistency across maisons.
+Our group culture requires leaders to balance creative autonomy with enterprise-wide standards.
+
+Competency matrix (4x3 competency framework):
+We will use a 4x3 competency matrix mapped to Vision, Entrepreneurship, Passion, Trust.
+
+Vision: strategic narrative, long-term brand direction, cross-brand coherence
+Entrepreneurship: ownership, speed of decision, innovation in local context
+Passion: talent development, customer obsession, craft excellence
+Trust: ethical leadership, collaboration, governance discipline
+Role-family prioritization for alignment:
+We will prioritize Brand Leaders, Regional Directors, and Functional Heads first because they drive cross-market execution and people decisions.
+
+Stakeholder alignment concern and decision:
+Main concern is over-standardization reducing local brand expression.
+Decision: keep one Group-level matrix but allow local behavioral examples per brand/region.
+
+
+
+
+
+
+
+
+
+Use this design proposal for the 360 program.
+
+Program spec:
+
+Program name: Gucci Leadership 360 and Coaching Journey
+Objective: Build consistent leadership behavior across brands while preserving local creative autonomy
+Target group: Brand Leaders, Regional Directors, Functional Heads
+Duration: 12 weeks
+Phases:
+360 feedback setup and rater onboarding (week 1-2)
+Assessment run and report generation (week 3-4)
+Coaching journey with 1:1 sessions (week 5-10)
+Review and development commitment (week 11-12)
+Outputs: Individual development plan, team heatmap, cross-brand leadership insights
+Governance: CHRO owns framework quality, regional HR owns execution readiness
+Questionnaire (assessment form, scale 1-5):
+Vision
+
+This leader communicates a clear long-term direction.
+This leader aligns team decisions with brand strategy.
+Entrepreneurship
+This leader makes timely decisions in uncertain situations.
+This leader encourages experimentation and ownership.
+Passion
+This leader sets high standards for craft and customer experience.
+This leader actively develops talent and successors.
+Trust
+This leader builds collaboration across functions and regions.
+This leader demonstrates integrity and accountability.
+Open questions
+What is this leader’s strongest behavior?
+What one behavior change would create the biggest impact?
+
+
+
+
+
+KPI table: CompletionRate=90% by 12w (Owner: CHRO), Engagement=75% monthly (Owner: HRBP), ModuleSuccess ≥80% (Owner: L&D); Rollout playbook: Phase1—Pilot 4w (select pilot, training, feedback; Owner: HRBP), Phase2—Scale 8w (full rollout, monitor KPIs, iterate; Owner: CHRO); Communication: launch email + townhall; Deliver: dashboard + weekly report.
+
+
+
+Final Presentation
+
+Title: Leadership Program — Pilot Rollout (12 weeks)
+Objective: Raise leadership capability to achieve ModuleSuccess ≥ 80% and improve Engagement to 75% monthly.
+Key Outcomes: Completed competency matrix; validated Group DNA; KPI dashboard and weekly reporting ready.
+KPIs (Targets): Completion Rate = 90% (12 weeks); Engagement = 75% monthly; Module Success ≥ 80%.
+Final Deliverables: Final slide deck (final_presentation), summary report, KPI dashboard, rollout playbook, program spec, questionnaire summary.
+Pilot → Rollout: Phase 1 — Pilot 4 weeks (select cohort, deliver training, collect feedback); Phase 2 — Scale 8 weeks (full rollout, monitor KPIs, iterate).
+Owners: CHRO — Sponsor/Approver; HRBP — Pilot owner; L&D — Delivery & dashboard.
+Required Decisions / Asks: 1) Approve final slides; 2) Confirm pilot cohort size; 3) Set townhall launch date.
+Delivery (48h): Slide deck + 10-minute speaker notes + dashboard mockup.

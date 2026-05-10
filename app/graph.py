@@ -249,6 +249,16 @@ def build_simulation_graph(model_type: str = "local"):
                     last_user_text = str(last_user[1])
                 else:
                     last_user_text = str(getattr(last_user, "content", ""))
+            
+            # INJECT STAGE CONTEXT for stage gate enforcement
+            current_stage = state.get("simulation_stage", "discovery")
+            required_actions = state.get("required_next_actions", [])
+            stage_context_msg = (
+                f"[STAGE CONTEXT FOR {name.upper()}] Current stage: {current_stage} | "
+                f"Required next actions: {', '.join(required_actions) if required_actions else 'None yet'}"
+            )
+            agent_state["messages"] = [SystemMessage(content=stage_context_msg)] + list(agent_state.get("messages") or [])
+            
             emotion_context = _build_emotion_context(name, state.get("co_worker_sentiment"))
             if emotion_context:
                 agent_state["messages"] = [SystemMessage(content=emotion_context)] + list(agent_state.get("messages") or [])

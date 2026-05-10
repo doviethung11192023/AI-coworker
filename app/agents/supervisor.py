@@ -69,6 +69,100 @@ _FRAMEWORK_TOPIC_PATTERNS = [
     r"group dna",
 ]
 
+_DISCOVERY_PROBLEM_PATTERNS = [
+    "business problem",
+    "problem",
+    "challenge",
+    "pain point",
+    "issue",
+    "gap",
+    "friction",
+    "barrier",
+    "obstacle",
+]
+
+_DISCOVERY_IMPACT_PATTERNS = [
+    "impact",
+    "affect",
+    "cost",
+    "revenue",
+    "profit",
+    "risk",
+    "retention",
+    "turnover",
+    "mobility",
+    "performance",
+    "brand",
+    "group",
+    "because",
+    "so that",
+]
+
+# ===== STAGE REQUIREMENTS & HINTS =====
+_STAGE_REQUIREMENTS = {
+    "discovery": {
+        "required_actions": ["problem_statement"],
+        "hint_base": "💡 Hint: Clearly articulate the specific business problem Gucci Group is solving. Why does this matter at Group level?",
+        "blocked_keywords": ["rollout", "deploy", "implement", "training", "adoption", "pilot", "roll out", "beta test", "train the trainer"],
+    },
+    "alignment": {
+        "required_actions": ["scope_clarification", "role_family_prioritization", "4pillar_mapping"],
+        "hint_base": "💡 Hint: Map key role families to our 4 pillars (Vision, Entrepreneurship, Passion, Trust). Which roles are critical?",
+        "blocked_keywords": ["train the trainer", "manager readiness", "adoption rate", "phase 1 beta", "regional resistance", "rollout"],
+    },
+    "execution_planning": {
+        "required_actions": ["pilot_selection", "training_plan", "adoption_metrics"],
+        "hint_base": "💡 Hint: Define pilot brands, training sequence, and adoption KPIs. What's your success measure?",
+        "blocked_keywords": [],
+    },
+}
+
+
+def _detect_stage_skip(messages, current_stage: str) -> dict:
+    """Detect if user is asking about something misaligned with current stage."""
+    user_messages = _extract_user_messages(messages)
+    if not user_messages:
+        return {"skip_detected": False}
+    
+    last_msg = user_messages[-1].lower()
+    stage_config = _STAGE_REQUIREMENTS.get(current_stage, {})
+    blocked_keywords = stage_config.get("blocked_keywords", [])
+    
+    if not blocked_keywords:
+        return {"skip_detected": False}
+    
+    for keyword in blocked_keywords:
+        if keyword in last_msg:
+            return {
+                "skip_detected": True,
+                "current_stage": current_stage,
+                "user_asked": keyword,
+                "required_actions": stage_config.get("required_actions", []),
+                "action": "redirect_to_stage",
+            }
+    
+    return {"skip_detected": False}
+
+
+def _build_dynamic_hint(current_stage: str, stage_progress: dict) -> str:
+    """Build stage-aware hint based on progress."""
+    stage_config = _STAGE_REQUIREMENTS.get(current_stage, {})
+    if not stage_config:
+        return ""
+    
+    progress_pct = stage_progress.get(current_stage, 0)
+    base_hint = stage_config.get("hint_base", "")
+    
+    # Add progress marker
+    if progress_pct >= 75:
+        hint = f"✅ {base_hint.replace('💡 Hint:', '').strip()}\n→ Stage nearly complete. Ready to move to next phase?"
+    elif progress_pct >= 50:
+        hint = f"🔄 {base_hint}"
+    else:
+        hint = base_hint
+    
+    return hint
+
 
 def _parse_director_json(text: str) -> dict:
     """Best-effort JSON extraction from model output."""
@@ -489,6 +583,13 @@ def _has_intent_signal(text: str) -> bool:
     return any(re.search(pattern, lowered) for pattern in _DELIVERABLE_INTENT_PATTERNS)
 
 
+def _is_discovery_problem_impact_statement(text: str) -> bool:
+    lowered = text.lower()
+    has_problem = any(pattern in lowered for pattern in _DISCOVERY_PROBLEM_PATTERNS)
+    has_impact = any(pattern in lowered for pattern in _DISCOVERY_IMPACT_PATTERNS)
+    return has_problem and has_impact and len(_tokenize(text)) >= 12
+
+
 def _deliverable_confidence(text: str, keywords: list[str], is_required_now: bool) -> tuple[float, dict]:
     lowered = text.lower()
     
@@ -525,8 +626,12 @@ def _deliverable_confidence(text: str, keywords: list[str], is_required_now: boo
     structure = _has_structure_signal(text)
     detail = _has_detail_signal(text)
 
-    # IMPROVED: Lower threshold when required and keywords already found
-    keyword_score = min(keyword_hits / max(len(keywords), 1), 1.0)
+    # Required deliverables should not be penalized by long keyword lists.
+    if is_required_now:
+        keyword_score = min(keyword_hits / 2.0, 1.0)
+    else:
+        keyword_score = min(keyword_hits / max(min(len(keywords), 4), 1), 1.0)
+
     score = (
         (0.55 * keyword_score)
         + (0.20 if intent else 0.0)
@@ -534,8 +639,7 @@ def _deliverable_confidence(text: str, keywords: list[str], is_required_now: boo
         + (0.10 if detail else 0.0)
     )
 
-    # IMPROVED: Lower threshold for required deliverables since they are critical
-    threshold = 0.60 if is_required_now else 0.85
+    threshold = 0.45 if is_required_now else 0.85
     return score, {
         "keyword_hits": keyword_hits,
         "intent": intent,
@@ -559,6 +663,19 @@ def _detect_deliverables(
 
     for deliverable_id, keywords in deliverable_keywords.items():
         is_required_now = deliverable_id in required_deliverables
+
+        if (
+            deliverable_id == "problem_statement"
+            and is_required_now
+            and _is_discovery_problem_impact_statement(text)
+        ):
+            found.add(deliverable_id)
+            logger.debug(
+                "Deliverable shortcut detected | id=%s reason=problem+impact pattern",
+                deliverable_id,
+            )
+            continue
+
         score, signals = _deliverable_confidence(text, keywords, is_required_now)
         if score >= signals["threshold"]:
             found.add(deliverable_id)
@@ -769,10 +886,12 @@ def supervisor_node(state: SimulationState):
     stage_complete = not missing and bool(required)
 
     next_stage = None
+    transitioned_from = None
     transition_hint = stage.get("next_stage_hint") if stage else None
     if stage_complete and stages:
         for index, item in enumerate(stages):
             if item.get("name") == current_stage and index + 1 < len(stages):
+                transitioned_from = current_stage
                 next_stage = stages[index + 1].get("name")
                 current_stage = next_stage
                 stage = stage_by_name.get(current_stage, {})
@@ -781,6 +900,11 @@ def supervisor_node(state: SimulationState):
                 progress = int(round(100 * (1 - (len(missing) / len(required))))) if required else 0
                 stage_complete = not missing and bool(required)
                 break
+
+    stage_progress_map = dict(state.get("stage_progress") or {})
+    if transitioned_from:
+        stage_progress_map[transitioned_from] = 100
+    stage_progress_map[current_stage] = progress
 
     logger.debug(
         "Stuck check | is_stuck=%s reason=%s",
@@ -845,7 +969,7 @@ def supervisor_node(state: SimulationState):
                 ),
                 "user_progress": updated_progress,
                 "simulation_stage": current_stage,
-                "stage_progress": {current_stage: progress},
+                "stage_progress": stage_progress_map,
                 "completed_deliverables": sorted(completed_deliverables),
                 "required_next_actions": missing,
             }
@@ -881,7 +1005,7 @@ def supervisor_node(state: SimulationState):
             ),
             "user_progress": updated_progress,
             "simulation_stage": current_stage,
-            "stage_progress": {current_stage: progress},
+            "stage_progress": stage_progress_map,
             "completed_deliverables": sorted(completed_deliverables),
             "required_next_actions": missing,
         }
@@ -963,6 +1087,18 @@ def supervisor_node(state: SimulationState):
     hint = str(decision.get("hint", "")).strip()
     if stuck_info["is_stuck"] and not hint:
         hint = stuck_info["hint"]
+    
+    # Stage skip detection
+    stage_skip_info = _detect_stage_skip(state.get("messages"), current_stage)
+    if stage_skip_info.get("skip_detected"):
+        reason = (
+            f"⚠️ Stage discipline alert: user asked about '{stage_skip_info.get('user_asked')}' "
+            f"but we're in {current_stage}. Agent will redirect to required action: {', '.join(stage_skip_info.get('required_actions', []))}."
+        )
+        hint = f"💡 First, let's focus on: {', '.join(stage_skip_info.get('required_actions', []))}"
+    elif not hint:
+        hint = _build_dynamic_hint(current_stage, stage_progress_map)
+    
     if transition_hint:
         reason = f"{reason} Next: {transition_hint}" if reason else f"Next: {transition_hint}"
     if hint:
@@ -1007,7 +1143,7 @@ def supervisor_node(state: SimulationState):
         "co_worker_sentiment": updated_sentiment,
         "user_progress": updated_progress,
         "simulation_stage": current_stage,
-        "stage_progress": {current_stage: progress},
+        "stage_progress": stage_progress_map,
         "completed_deliverables": sorted(completed_deliverables),
         "required_next_actions": missing,
     }

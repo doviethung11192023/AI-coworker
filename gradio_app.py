@@ -94,20 +94,27 @@ def discover_simulations() -> list[str]:
 
 
 def _format_stage_view(payload: dict[str, Any]) -> str:
-    stage = payload.get("simulation_stage") or "discovery"
+    raw_stage = payload.get("simulation_stage")
+    stage = raw_stage.strip() if isinstance(raw_stage, str) and raw_stage.strip() else None
     stage_progress = payload.get("stage_progress") or {}
     completed = payload.get("completed_deliverables") or []
     next_actions = payload.get("required_next_actions") or []
 
-    current_progress = stage_progress.get(stage)
+    current_progress = stage_progress.get(stage) if stage else None
     progress_text = f"{current_progress}%" if current_progress is not None else "n/a"
+    stage_text = stage or "unknown (awaiting backend stage)"
 
     completed_text = "\n".join([f"- {item}" for item in completed]) if completed else "- None yet"
     next_actions_text = "\n".join([f"- {item}" for item in next_actions]) if next_actions else "- None"
 
     # LOW: Add UI hint for stage progression
     hint_text = ""
-    if next_actions and stage == "discovery":
+    if not stage:
+        hint_text = (
+            "\n\nℹ️ **Stage source:** Backend has not returned `simulation_stage` yet. "
+            "Send one message to initialize state or check backend logs if this persists."
+        )
+    elif next_actions and stage == "discovery":
         hint_text = (
             "\n\n💡 **Hint to progress:** "
             "Clearly articulate a specific business problem that needs solving. "
@@ -123,7 +130,7 @@ def _format_stage_view(payload: dict[str, Any]) -> str:
 
     return (
         f"### Stage View\n"
-        f"- Current stage: **{stage}**\n"
+        f"- Current stage: **{stage_text}**\n"
         f"- Stage progress: **{progress_text}**\n\n"
         f"**Completed deliverables**\n{completed_text}\n\n"
         f"**Required next actions**\n{next_actions_text}{hint_text}"
